@@ -3,6 +3,7 @@ from os.path import dirname, abspath, join
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.testclient import TestClient
 
 
 current_dir = dirname(abspath(__file__))
@@ -29,6 +30,18 @@ def root():
 @app.get('/countries')
 def countries():
     return list(data.keys())
+
+
+@app.get('/countries/{country}/cities')
+def cities(country: str):
+    return list(data[country].keys())
+
+
+def test_cities_for_spain():
+    response = TestClient(app).get('/countries/Spain/cities')
+
+    assert response.status_code == 200
+    assert response.json() == list(data['Spain'].keys())
 
 
 @app.get('/countries/{country}/{city}/{month}')
